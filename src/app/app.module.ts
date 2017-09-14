@@ -9,6 +9,8 @@ import { HomePage } from '../pages/home/home';
 import { AlertPage } from "../pages/alert/alert";
 
 import { Geolocation } from '@ionic-native/geolocation';
+import { GoogleMaps, Geocoder} from '@ionic-native/google-maps';
+import { CallNumber } from '@ionic-native/call-number';
 
 
 @NgModule({
@@ -31,6 +33,9 @@ import { Geolocation } from '@ionic-native/geolocation';
     StatusBar,
     SplashScreen,
     Geolocation,
+    GoogleMaps,
+    Geocoder,
+    CallNumber,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
   ]
 })
