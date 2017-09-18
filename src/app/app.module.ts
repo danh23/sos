@@ -11,6 +11,8 @@ import { AlertPage } from "../pages/alert/alert";
 import { Geolocation } from '@ionic-native/geolocation';
 import { GoogleMaps, Geocoder} from '@ionic-native/google-maps';
 import { CallNumber } from '@ionic-native/call-number';
+import { Diagnostic } from '@ionic-native/diagnostic';
+import { Camera } from '@ionic-native/camera';
 
 
 @NgModule({
@@ -36,6 +38,8 @@ import { CallNumber } from '@ionic-native/call-number';
     GoogleMaps,
     Geocoder,
     CallNumber,
+    Diagnostic,
+    Camera,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
   ]
 })

@@ -2,7 +2,7 @@ import { Component, OnInit} from '@angular/core';
 import { NavController } from 'ionic-angular';
 import { Platform } from 'ionic-angular';
 import { AlertPage } from "../alert/alert";
-import { ToastController } from 'ionic-angular';
+import { AlertController } from 'ionic-angular';
 
 
 @Component({
@@ -13,7 +13,7 @@ export class HomePage implements OnInit{
 
   constructor(public navCtrl: NavController,
               public platform: Platform,
-              public toastCtrl: ToastController) {
+              public alertCtrl: AlertController) {
 
   }
 
@@ -24,18 +24,27 @@ export class HomePage implements OnInit{
   }
 
   alert(){
-    this.presentToast();
+    this.presentAlert();
   }
 
-  presentToast() {
-    let toast = this.toastCtrl.create({
-      message: 'You are about to alert!',
-      position: 'middle',
-      showCloseButton: true,
-      closeButtonText: 'Ok'
+  presentAlert() {
+    let alert = this.alertCtrl.create({
+      title: 'You are about to alert the authorities!',
+      subTitle: 'Requested service: ',
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            this.navCtrl.push(AlertPage);
+          }
+        },
+        {
+          text: 'Dismiss',
+          handler: () => {}
+        }
+      ]
     });
-    toast.onDidDismiss(() => this.navCtrl.push(AlertPage));
-    toast.present();
+    alert.present();
   }
 
 }

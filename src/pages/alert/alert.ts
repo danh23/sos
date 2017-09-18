@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, LoadingController, Loading } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 import {
   GoogleMaps,
@@ -15,6 +15,7 @@ import {
   Marker
  } from '@ionic-native/google-maps';
 import { CallNumber } from "@ionic-native/call-number";
+import { Camera, CameraOptions } from "@ionic-native/camera";
 
 /**
  * Generated class for the AlertPage page.
@@ -38,28 +39,36 @@ export class AlertPage {
   map: GoogleMap;
   mapElement: HTMLElement;
 
+  loader: Loading;
+
   constructor(public navCtrl: NavController, 
               public navParams: NavParams,
               private geolocation: Geolocation,
               private googleMaps: GoogleMaps,
               private geocoder: Geocoder,
-              private callNumber: CallNumber) {
+              private callNumber: CallNumber,
+              private camera: Camera,
+              public loadingCtrl: LoadingController) {
   }
 
   ionViewDidLoad() {
     /*this.callNumber.callNumber("0728600515", false)
       .then(() => console.log('Launched dialer!'))
       .catch(() => console.log('Error launching dialer')); */
+      this.loader = this.loadingCtrl.create({
+        content: 'Waiting for location...'
+      });
    }
 
   ionViewWillEnter() {
-    console.log("coord")
+    this.loader.present();
     this.geolocation.getCurrentPosition().then((resp) => {
       this.latitude = resp.coords.latitude;
       this.longitude = resp.coords.longitude;
       this.loadMap();
      }).catch((error) => {
        console.log('Error getting location', error);
+       this.loader.dismiss();
      });
      
      let watch = this.geolocation.watchPosition();
@@ -78,7 +87,6 @@ export class AlertPage {
 
   loadMap() {
     this.mapElement = document.getElementById('map');
-    this.map.setMyLocationEnabled(true);
 
     let mapOptions = {
       camera: {
@@ -97,12 +105,16 @@ export class AlertPage {
     };
 
     this.map = this.googleMaps.create(this.mapElement, mapOptions);
+    console.log(this.map);
     this.map.setClickable(true);
+    this.map.setMyLocationEnabled(true);
 
     // Wait the MAP_READY before using any methods.
     this.map.on(GoogleMapsEvent.MAP_READY)
       .subscribe(() => {
         console.log('Map is ready!');
+
+        this.loader.dismiss();
 
         this.map.getMyLocation().then(location => {
           console.log(location);
@@ -156,7 +168,7 @@ export class AlertPage {
 
     let latLng: ILatLng = {lat, lng};
     
-    let marker = Marker({
+    /*let marker = Marker({
       map: this.map,
       icon: new google.maps.MarkerImage('//maps.gstatic.com/mapfiles/mobile/mobileimgs2.png',
         new google.maps.Size(22, 22),
@@ -166,7 +178,7 @@ export class AlertPage {
     });
     
       let content = "<h4>You are here</h4>";
-      this.addInfoWindow(marker, content);
+      this.addInfoWindow(marker, content);*/
 
     let cameraPos: CameraPosition<ILatLng> = {
       target: {lat: lat, lng: lng}
@@ -174,6 +186,23 @@ export class AlertPage {
 
     this.map.moveCamera(cameraPos).then(()=>console.log("move camera"));
 
+  }
+
+  takePhoto(){
+    const options: CameraOptions = {
+      quality: 100,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      encodingType: this.camera.EncodingType.JPEG,
+      mediaType: this.camera.MediaType.PICTURE
+    }
+    
+    this.camera.getPicture(options).then((imageData) => {
+     // imageData is either a base64 encoded string or a file URI
+     // If it's base64:
+     let base64Image = 'data:image/jpeg;base64,' + imageData;
+    }, (err) => {
+     // Handle error
+    });
   }
 
 }
