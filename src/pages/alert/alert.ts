@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, LoadingController, Loading } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, LoadingController, Loading, AlertController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 import {
   GoogleMaps,
@@ -16,6 +16,7 @@ import {
  } from '@ionic-native/google-maps';
 import { CallNumber } from "@ionic-native/call-number";
 import { Camera, CameraOptions } from "@ionic-native/camera";
+import { DataServiceProvider } from "../../providers/data-service/data-service";
 
 /**
  * Generated class for the AlertPage page.
@@ -28,6 +29,7 @@ import { Camera, CameraOptions } from "@ionic-native/camera";
 @Component({
   selector: 'page-alert',
   templateUrl: 'alert.html',
+  providers: [DataServiceProvider]
 })
 export class AlertPage {
 
@@ -41,6 +43,8 @@ export class AlertPage {
 
   loader: Loading;
 
+  questions: any[];
+
   constructor(public navCtrl: NavController, 
               public navParams: NavParams,
               private geolocation: Geolocation,
@@ -48,7 +52,9 @@ export class AlertPage {
               private geocoder: Geocoder,
               private callNumber: CallNumber,
               private camera: Camera,
-              public loadingCtrl: LoadingController) {
+              public loadingCtrl: LoadingController,
+              private dataService: DataServiceProvider,
+              public alertCtrl: AlertController) {
   }
 
   ionViewDidLoad() {
@@ -120,6 +126,9 @@ export class AlertPage {
           console.log(location);
         })
 
+        //show questions
+        this.fetchQuestions();
+
         // Now you can use all methods safely.
         this.map.addMarker({
             title: 'Ionic',
@@ -184,9 +193,55 @@ export class AlertPage {
       target: {lat: lat, lng: lng}
     };
 
-    this.map.moveCamera(cameraPos).then(()=>console.log("move camera"));
+    //this.map.moveCamera(cameraPos).then(()=>console.log("move camera"));
 
   }
+
+  fetchQuestions() {
+    this.dataService.getQuestions().subscribe(res => {
+      console.log(res);
+      this.questions = res;
+        this.showAlert(res, 0);
+    })
+  }
+
+  showAlert(questions, i){
+
+    if(i<questions.length){
+      let alert = this.alertCtrl.create();
+      alert.setTitle(questions[i].message);
+
+      alert.addInput({
+        type: 'checkbox',
+        label: 'value 1',
+        value: 'value1',
+        checked: true
+      });
+  
+      alert.addInput({
+        type: 'checkbox',
+        label: 'value 2',
+        value: 'value2'
+      });
+
+      alert.addButton({
+        text: 'Skip',
+        handler: data => this.alertHandler(false, i)
+      });
+      alert.addButton({
+        text: 'OK',
+        handler: data => this.alertHandler(true, i)
+      });
+
+      alert.present();
+    }
+  }
+
+  alertHandler(send: boolean, i: number){
+    this.showAlert(this.questions, ++i);
+  }
+
+  
 
   takePhoto(){
     const options: CameraOptions = {
